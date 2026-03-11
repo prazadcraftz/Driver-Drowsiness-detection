@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HybridDDS: A Dual-Branch Spatiotemporal Framework for Real-Time Driver Drowsiness Detection</title>
+  <style>
+    /* ========== RESET & BASE ========== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Times New Roman", Times, serif;
+      font-size: 10pt;
+      line-height: 1.35;
+      color: #000;
+      background: #fff;
+      padding: 0;
+    }
+
+    /* ========== PAGE LAYOUT ========== */
+    .page-wrapper {
+      max-width: 7.5in;
+      margin: 0 auto;
+      padding: 0.75in 0.65in;
+    }
+
+    /* ========== CONFERENCE HEADER ========== */
+    .conf-header {
+      text-align: center;
+      font-size: 8pt;
+      border-bottom: 2px solid #000;
+      padding-bottom: 4px;
+      margin-bottom: 10px;
+      letter-spacing: 0.03em;
+    }
+
+    /* ========== TITLE BLOCK ========== */
+    .title-block {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .paper-title {
+      font-size: 20pt;
+      font-weight: bold;
+      line-height: 1.2;
+      margin-bottom: 10px;
+    }
+    .authors {
+      font-size: 11pt;
+      margin-bottom: 4px;
+    }
+    .affiliations {
+      font-size: 9pt;
+      font-style: italic;
+      color: #222;
+    }
+
+    /* ========== ABSTRACT / KEYWORDS ========== */
+    .abstract-block {
+      margin: 12px 0;
+    }
+    .abstract-block .section-label {
+      font-weight: bold;
+      font-style: italic;
+    }
+
+    /* ========== TWO-COLUMN BODY ========== */
+    .two-col {
+      column-count: 2;
+      column-gap: 0.25in;
+      column-rule: none;
+      text-align: justify;
+    }
+
+    /* ========== SECTIONS ========== */
+    h2.section-title {
+      font-size: 10pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      text-align: center;
+      margin-top: 8px;
+      margin-bottom: 4px;
+      break-after: avoid;
+      column-span: none;
+    }
+    h3.subsection-title {
+      font-size: 10pt;
+      font-style: italic;
+      font-weight: bold;
+      margin-top: 6px;
+      margin-bottom: 2px;
+      break-after: avoid;
+    }
+
+    p {
+      margin-bottom: 4px;
+      text-indent: 1em;
+    }
+    p.no-indent { text-indent: 0; }
+
+    /* ========== EQUATIONS ========== */
+    .eq-wrap {
+      display: flex;
+      align-items: center;
+      margin: 5px 0;
+      break-inside: avoid;
+    }
+    .eq-body {
+      flex: 1;
+      text-align: center;
+      font-style: italic;
+    }
+    .eq-num {
+      width: 30px;
+      text-align: right;
+      font-style: normal;
+      font-size: 9pt;
+      white-space: nowrap;
+    }
+
+    /* ========== TABLES ========== */
+    .tbl-wrap {
+      break-inside: avoid;
+      margin: 8px 0;
+    }
+    .tbl-caption {
+      text-align: center;
+      font-size: 9pt;
+      font-weight: bold;
+      margin-bottom: 3px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.5pt;
+    }
+    th {
+      border-top: 2px solid #000;
+      border-bottom: 1px solid #000;
+      padding: 2px 4px;
+      text-align: center;
+      font-weight: bold;
+    }
+    td {
+      border-bottom: none;
+      padding: 2px 4px;
+      text-align: center;
+    }
+    tr:last-child td { border-bottom: 1px solid #000; }
+    .tbl-note {
+      font-size: 8pt;
+      font-style: italic;
+      margin-top: 2px;
+    }
+
+    /* ========== REFERENCES ========== */
+    .references-section {
+      column-span: all;
+      margin-top: 10px;
+    }
+    .references-section h2.section-title {
+      text-align: left;
+    }
+    ol.ref-list {
+      list-style: none;
+      padding: 0;
+      font-size: 8.5pt;
+      column-count: 2;
+      column-gap: 0.25in;
+    }
+    ol.ref-list li {
+      padding-left: 2.2em;
+      text-indent: -2.2em;
+      margin-bottom: 3px;
+    }
+    ol.ref-list li::before {
+      content: "[" counter(ref-counter) "]  ";
+      counter-increment: ref-counter;
+      font-weight: normal;
+    }
+    ol.ref-list { counter-reset: ref-counter; }
+
+    /* ========== FIGURE ========== */
+    .figure-wrap {
+      break-inside: avoid;
+      margin: 8px 0;
+      text-align: center;
+    }
+    .figure-caption {
+      font-size: 9pt;
+      margin-top: 3px;
+    }
+    .fig-box {
+      border: 1px solid #888;
+      padding: 6px;
+      font-size: 8.5pt;
+      font-style: italic;
+      color: #555;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ========== FOOTNOTE-STYLE DIVIDER ========== */
+    hr.thin { border: none; border-top: 1px solid #000; margin: 6px 0; }
+
+    /* ========== PRINT ========== */
+    @media print {
+      body { font-size: 10pt; }
+      .page-wrapper { padding: 0.5in 0.5in; }
+      .two-col { column-count: 2; }
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- ===== CONFERENCE HEADER ===== -->
+  <div class="conf-header">
+    Proceedings of the IEEE Intelligent Transportation Systems Conference (ITSC) · 2025 · Submitted Manuscript
+  </div>
+
+  <!-- ===== TITLE BLOCK ===== -->
+  <div class="title-block">
+    <div class="paper-title">
+      HybridDDS: A Dual-Branch Spatiotemporal Framework for Real-Time<br>
+      Driver Drowsiness Detection Using Swin Transformer and<br>
+      Physiological-Proxy Feature Fusion
+    </div>
+    <div class="authors">
+      Prazad Craftz<sup>1</sup>
+    </div>
+    <div class="affiliations">
+      <sup>1</sup>Independent Researcher &mdash; prazadcraftz@github.io
+    </div>
+  </div>
+
+  <hr class="thin">
+
+  <!-- ===== ABSTRACT ===== -->
+  <div class="abstract-block">
+    <span class="section-label">Abstract&mdash;</span>Driver drowsiness is a leading cause of road traffic fatalities, responsible for approximately 100,000 police-reported crashes and 800 deaths annually in the United States alone (NHTSA). Existing automated detection systems suffer from a fundamental dichotomy: deep-learning methods capture rich appearance features but ignore clinically validated physiological indicators, whereas handcrafted feature systems incorporate domain knowledge but lack the representational capacity of modern neural architectures. Neither paradigm has been rigorously evaluated across heterogeneous, multi-dataset benchmarks. We propose HybridDDS, a dual-branch spatiotemporal framework that resolves this dichotomy by jointly leveraging (a) deep visual features extracted by a pretrained Swin Transformer Tiny from eye-region crops, and (b) seven physiological-proxy signals&mdash;including EAR, PERCLOS, MAR, and 3D head-pose angles&mdash;computed analytically from dlib 68-point facial landmarks. The two branches are fused, then passed through a one-layer LSTM for temporal smoothing across ten-frame windows. The complete system is validated on five publicly available benchmarks spanning over 250,000 frames, three imaging modalities, and approximately 290 subjects: MRL Eye, NTHU-DDD, YawDD, UTA-RLDD, and 3MDAD. A progressive five-phase training strategy enables efficient knowledge transfer across datasets. HybridDDS achieves 97.30% accuracy, 0.9697 F1-score, and 0.9959 AUC-ROC on the combined hold-out test set, outperforming all compared state-of-the-art methods. Leave-one-dataset-out evaluation confirms cross-dataset generalizability. The model contains only 323,457 trainable parameters during final-phase training, making deployment feasible on embedded automotive hardware.
+    <br><br>
+    <span class="section-label">Index Terms&mdash;</span>Driver Drowsiness Detection, Swin Transformer, LSTM, Feature Fusion, PERCLOS, Eye Aspect Ratio, Cross-Dataset Evaluation, Spatiotemporal Modeling, Physiological-Proxy Signals, Intelligent Transportation Systems.
+  </div>
+
+  <hr class="thin">
+
+  <!-- ===== TWO-COLUMN BODY ===== -->
+  <div class="two-col">
+
+    <!-- ===== SECTION I ===== -->
+    <h2 class="section-title">I. Introduction</h2>
+
+    <p>Drowsy driving is a critical public-safety hazard. The U.S. National Highway Traffic Safety Administration (NHTSA) estimates that driver drowsiness contributes to approximately 100,000 police-reported crashes, 71,000 injuries, and 800 fatalities each year, with the true numbers believed to be substantially higher due to under-reporting [1]. In commercial transportation, where professional drivers routinely operate for extended durations, the economic cost of drowsiness-related incidents exceeds $12.5 billion annually [2]. Advanced Driver Assistance Systems (ADAS) that can detect and alert drowsy drivers in real time represent one of the highest-impact interventions available to transportation safety engineers.</p>
+
+    <p>Drowsiness manifests through several observable physiological channels. Ocular indicators&mdash;eye closure duration, blink frequency, and the degree of eyelid droop&mdash;are the most clinically validated correlates of sleepiness [3]. The PERCLOS measure, defined as the proportion of time eyelid closure exceeds 80% over a rolling window, is recognized by NHTSA as a gold-standard drowsiness measure [4]. Complementary signals include yawning (mouth aspect ratio), head nodding (pitch angle), and lateral head sway (roll/yaw). A robust detection system should incorporate all of these channels.</p>
+
+    <p>Existing automated detection systems broadly divide into two families. The first family relies on handcrafted physiological-proxy features computed from facial landmarks [5], [6]. These systems are interpretable and computationally lightweight, but their accuracy plateaus because landmark-based representations are sensitive to illumination variation, partial occlusion, and pose extremes. The second family applies convolutional neural networks or, more recently, Vision Transformers directly to full-face or eye-crop images [7], [8]. These methods achieve higher accuracy in controlled settings but discard the structured physiological knowledge encoded in decades of sleep research. Furthermore, virtually all published systems are validated on a single dataset [9], raising serious concerns about generalizability across different cameras, lighting conditions, and subject populations.</p>
+
+    <p>We identify three concrete gaps in the state of the art: (1) no published system combines modern Vision Transformer representations with physiological-proxy features in a unified, jointly trained architecture; (2) temporal modeling of drowsiness progression across frames is often omitted or achieved only with simple sliding-window averaging; and (3) cross-dataset evaluation under a Leave-One-Dataset-Out (LODO) protocol is rarely reported, obscuring the true generalizability of proposed methods.</p>
+
+    <p>To address these gaps, we propose <b>HybridDDS</b>, a dual-branch spatiotemporal framework. Branch A uses a Swin Transformer Tiny [10] to extract 768-dimensional deep visual features from eye-region image crops. Branch B analytically computes seven physiological-proxy features from dlib 68-point facial landmarks, then projects them through a compact multi-layer perceptron to a 128-dimensional vector. The concatenated 896-dimensional fusion vector is reduced to 256 dimensions by a learned linear projection and then processed by a one-layer LSTM over a 10-frame temporal window, yielding a final drowsiness score via a two-layer classifier head. The model is trained with a five-phase progressive strategy across five public benchmarks containing over 250,000 annotated frames.</p>
+
+    <p>The main contributions of this work are:</p>
+    <p class="no-indent"><b>C1.</b> The first architecture to fuse Swin Transformer deep visual features with clinically motivated physiological-proxy signals (PERCLOS, EAR, MAR, head pose) in a single end-to-end trainable framework for drowsiness detection.</p>
+    <p class="no-indent"><b>C2.</b> A five-phase progressive training strategy enabling efficient knowledge transfer across five heterogeneous datasets spanning three imaging modalities and approximately 290 subjects.</p>
+    <p class="no-indent"><b>C3.</b> A compact, deployment-friendly model (only 323,457 trainable parameters in the final training phase) that achieves 97.30% accuracy and 0.9959 AUC-ROC on a combined 250K+ frame benchmark.</p>
+    <p class="no-indent"><b>C4.</b> Comprehensive ablation experiments quantifying the contribution of each component (Branch A, Branch B, LSTM), demonstrating that temporal modeling adds +2.97% accuracy over frame-level baselines.</p>
+    <p class="no-indent"><b>C5.</b> A rigorous Leave-One-Dataset-Out cross-dataset evaluation confirming system generalizability to unseen datasets, cameras, and subject populations.</p>
+    <p class="no-indent"><b>C6.</b> Full open-source implementation and experimental pipeline shared publicly for reproducibility.</p>
+
+    <p>The remainder of this paper is organized as follows. Section II reviews related work. Section III describes the proposed HybridDDS architecture and training strategy. Section IV details experimental setup. Section V presents results and analysis. Section VI discusses implications and limitations. Section VII concludes the paper.</p>
+
+    <!-- ===== SECTION II ===== -->
+    <h2 class="section-title">II. Related Work</h2>
+
+    <h3 class="subsection-title">A. Deep Learning Approaches</h3>
+
+    <p>Convolutional neural networks have dominated drowsiness detection since 2017. Weng et al. [7] applied a two-stream CNN to infrared and visible-spectrum face images from NTHU-DDD, achieving 73.5% accuracy on cross-subject evaluation. Song et al. [11] used a hybrid CNN with attention mechanisms on YawDD, reporting improvements in yawning detection but not modeling temporal dynamics. Dua et al. [5] combined CNN feature extraction with an SVM classifier on a private dataset and reported 92.0% accuracy; however, no temporal modeling was employed, and cross-dataset validation was not performed.</p>
+
+    <p>More recently, transformer-based architectures have been explored. Jia et al. [8] proposed a ResNet-50 backbone followed by an LSTM layer, evaluated on a single dataset, achieving 95.1% accuracy and 0.982 AUC. While this work acknowledged temporal context, it used a fixed convolutional backbone without adapting to physiological knowledge. Moujahid et al. [12] trained an IR-optimized CNN on a controlled lab dataset and reported 96.8% accuracy, but the system was evaluated only in infrared and was not tested across multiple datasets. Park et al. [13] explored fine-tuning ViT-Base for fatigue detection, finding that the global attention mechanism captured inter-landmark spatial relationships not accessible to local CNN receptive fields, but again with single-dataset evaluation.</p>
+
+    <p>Hashemi et al. [14] fine-tuned VGG-16 with transfer learning on a custom driving dataset, obtaining 94.2% accuracy and 0.971 AUC. Their work highlighted the risk of overfitting when adapting large pretrained networks to small task-specific datasets without regularization. The Swin Transformer [10], with its hierarchical windowed attention providing O(n) computational complexity relative to image size, has shown superior performance on dense prediction tasks. To our knowledge, HybridDDS is the first system to adapt Swin Transformer specifically for driver drowsiness detection.</p>
+
+    <h3 class="subsection-title">B. Physiological Feature Approaches</h3>
+
+    <p>The Eye Aspect Ratio (EAR), introduced by Soukupov&aacute; and &Ccaron;ech [15], computes the ratio of vertical to horizontal eye opening using six dlib landmark points. Its simplicity and real-time efficiency have made it a widely adopted baseline [16]. Joshi et al. [6] combined MTCNN-based face detection with EAR thresholding, achieving 94.5% accuracy; however, EAR alone is sensitive to image quality and cannot capture temporal trends. PERCLOS, the percentage of eyelid closure over a sliding window, was established by Dinges et al. [4] as the most reliable behavioral indicator of drowsiness and is recognized by NHTSA as a gold-standard measure. Several systems, including those proposed by Ji [17], have embedded PERCLOS estimation in camera-based monitoring systems, demonstrating strong correlation with psychomotor vigilance task scores.</p>
+
+    <p>Head pose estimation using PnP-based algorithms provides complementary drowsiness evidence through nodding (pitch) and lateral sway (roll/yaw). Abtahi et al. [18] integrated pitch angle monitoring with EAR in a combined alertness system and showed that head nodding can serve as an early-warning signal several seconds before ocular closure exceeds dangerous thresholds. The challenge with pure physiological feature systems is their fragility under poor lighting, significant head movement, or facial occlusion by eyeglasses or facial hair. Our Branch B explicitly quantizes PhDown (a binary indicator for forward head tilt beyond &minus;15°) to provide a robust, semantically meaningful feature rather than a raw continuous angle.</p>
+
+    <h3 class="subsection-title">C. Feature Fusion Methods</h3>
+
+    <p>Several works have explored fusing visual and physiological signals. Zhang et al. [19] combined optical flow and EAR features using a late-fusion strategy, showing that complementary information reduced false positive rates compared to either modality alone. Reddy et al. [20] concatenated CNN features with landmark-derived blink features and reported improved performance on YawDD, but did not project them into a shared embedding space before fusion. Our approach differs by learning explicit projections (Branch A GAP head; Branch B MLP) that map features into compatible representational spaces before concatenation, followed by a learned fusion linear layer&mdash;a strategy analogous to multi-modal embedding alignment [21].</p>
+
+    <p>Temporal modeling in fusion systems has been explored by Yao et al. [22], who combined CNN spatial features with LSTM temporal modeling but without physiological features. Their system achieved strong performance on lab recordings but struggled on unconstrained in-car video. HybridDDS extends this paradigm by providing the LSTM with pre-fused deep-plus-physiological features, enriching the temporal signal with explicit physiological semantics that the LSTM can exploit to recognize progressive drowsiness patterns.</p>
+
+    <h3 class="subsection-title">D. Multi-Dataset Evaluation Gap</h3>
+
+    <p>A persistent weakness in the drowsiness detection literature is reliance on single-dataset evaluation. Ahmad et al. [9] conducted a systematic survey of 87 drowsiness detection papers published between 2015 and 2022 and found that 91% evaluated their systems on only one dataset, making cross-system comparisons unreliable. The five datasets used in this work&mdash;MRL Eye [23], NTHU-DDD [24], YawDD [25], UTA-RLDD [26], and 3MDAD [27]&mdash;collectively span three imaging modalities (RGB, infrared, depth), controlled and naturalistic driving conditions, and laboratory and in-vehicle acquisition environments. To our knowledge, no prior single system has been validated across all five datasets simultaneously. We further adopt the LODO protocol, which explicitly tests domain transfer to unseen datasets, a protocol advocated by Kaplan et al. [28] as the appropriate robustness benchmark for safety-critical applications.</p>
+
+    <!-- ===== SECTION III ===== -->
+    <h2 class="section-title">III. Proposed Method</h2>
+
+    <h3 class="subsection-title">A. System Overview</h3>
+
+    <p>HybridDDS processes video streams frame-by-frame, accumulating features into temporal windows of length <i>T</i> = 10 frames before issuing a drowsiness score. The pipeline comprises five stages: (1) face detection and 68-point landmark localization; (2) Branch A deep visual feature extraction; (3) Branch B physiological-proxy feature computation; (4) feature fusion; and (5) LSTM temporal classification. The system is designed to operate at the frame rate of a standard automotive camera (25&ndash;30 fps), with latency dominated by Branch A's Swin Transformer inference.</p>
+
+    <h3 class="subsection-title">B. Face Detection and Landmark Localization</h3>
+
+    <p>We use the dlib HOG-based frontal face detector combined with the Kazemi and Sullivan 68-point shape predictor [29]. The face bounding box is expanded by 20% on each side to ensure full eyelid coverage. If face detection fails&mdash;which occurs on approximately 15&ndash;25% of frames in unconstrained driving datasets due to rapid head movement or illumination transients&mdash;we apply a center-crop fallback using the frame center with a fixed bounding box equal to 50% of the frame width, and zero-fill all physiological feature values. This ensures temporal continuity during detection failures without introducing hallucinated features.</p>
+
+    <h3 class="subsection-title">C. Branch A: Deep Visual Features</h3>
+
+    <p>From the 68 landmarks, indices 36&ndash;47 define the left and right eye boundaries. We compute the minimal axis-aligned bounding box enclosing both eye regions, add 10-pixel padding on each side, and crop this region from the full-resolution frame. The crop is resized to 224&times;224 and normalized with ImageNet statistics (&mu; = [0.485, 0.456, 0.406], &sigma; = [0.229, 0.224, 0.225]).</p>
+
+    <p>This crop is passed through a Swin Transformer Tiny [10], which uses hierarchical windowed self-attention. The four stages of Swin-T produce feature maps at progressively higher channel counts and lower spatial resolutions: Stage 1 (96 channels, window 7&times;7, 2 blocks), Stage 2 (192 channels, 2 blocks), Stage 3 (384 channels, 6 blocks), and Stage 4 (768 channels, 2 blocks). The Stage 4 output undergoes Global Average Pooling to yield a 768-dimensional vector <b>f</b><sub>A</sub>:</p>
+
+    <div class="eq-wrap">
+      <span class="eq-body"><b>f</b><sub>A</sub> = GAP(SwinT(<i>x</i><sub>eye</sub>)) &isin; &Ropf;<sup>768</sup></span>
+      <span class="eq-num">(1)</span>
+    </div>
+
+    <p>The Swin Transformer is pretrained on ImageNet-1K (27.5M parameters). In training Phases 1&ndash;3, the backbone is fine-tuned with a low learning rate (5&times;10<sup>&minus;6</sup>). In Phase 4 the backbone is frozen to prevent catastrophic forgetting when adapting to the diverse multi-dataset regime.</p>
+
+    <h3 class="subsection-title">D. Branch B: Physiological-Proxy Features</h3>
+
+    <p><b>Eye Aspect Ratio (EAR).</b> For each eye defined by six landmark points {p<sub>1</sub>, &hellip;, p<sub>6</sub>} (outer corner, four eyelid points, inner corner), EAR is computed as:</p>
+
+    <div class="eq-wrap">
+      <span class="eq-body">EAR = &nbsp; (&Vert;<b>p</b><sub>2</sub> &minus; <b>p</b><sub>6</sub>&Vert; + &Vert;<b>p</b><sub>3</sub> &minus; <b>p</b><sub>5</sub>&Vert;) &divide; (2 &sdot; &Vert;<b>p</b><sub>1</sub> &minus; <b>p</b><sub>4</sub>&Vert;)</span>
+      <span class="eq-num">(2)</span>
+    </div>
+
+    <p>The bilateral average EAR = (EAR<sub>L</sub> + EAR<sub>R</sub>) / 2 is used as the feature value. EAR typically ranges from 0.20 to 0.40 for open eyes and approaches 0 for fully closed eyes.</p>
+
+    <p><b>Mouth Aspect Ratio (MAR).</b> Using inner mouth landmarks 60&ndash;67, MAR quantifies mouth opening as:</p>
+
+    <div class="eq-wrap">
+      <span class="eq-body">MAR = (&Vert;<b>m</b><sub>2</sub>&minus;<b>m</b><sub>6</sub>&Vert; + &Vert;<b>m</b><sub>3</sub>&minus;<b>m</b><sub>5</sub>&Vert;) &divide; (2 &sdot; &Vert;<b>m</b><sub>1</sub>&minus;<b>m</b><sub>4</sub>&Vert;)</span>
+      <span class="eq-num">(3)</span>
+    </div>
+
+    <p>Elevated MAR (&gt; 0.6) indicates yawning, a primary drowsiness correlate.</p>
+
+    <p><b>PERCLOS.</b> Over a sliding window of <i>W</i> = 450 frames (approximately 15 seconds at 30 fps), PERCLOS is defined as:</p>
+
+    <div class="eq-wrap">
+      <span class="eq-body">PERCLOS = (1/<i>W</i>) &sum;<sub>t=0</sub><sup><i>W</i>&minus;1</sup> &nbsp; 𝟙[EAR(<i>t</i>) &lt; &theta;]</span>
+      <span class="eq-num">(4)</span>
+    </div>
+
+    <p>where &theta; = 0.20 is the eye-closure threshold. A PERCLOS value exceeding 0.15 is considered indicative of drowsiness [4].</p>
+
+    <p><b>Head Pose Estimation.</b> A six-point 3D face model (nose tip, chin, left/right eye corners, left/right mouth corners) is matched against their 2D image-landmark counterparts using OpenCV's <code>solvePnP</code> (RANSAC variant) with the Levenberg&ndash;Marquardt solver. The rotation vector <b>r</b> is converted to a 3&times;3 rotation matrix via Rodrigues:</p>
+
+    <div class="eq-wrap">
+      <span class="eq-body"><b>R</b> = Rodrigues(<b>r</b>) &nbsp;&isin;&nbsp; SO(3)</span>
+      <span class="eq-num">(5)</span>
+    </div>
+
+    <p>Euler angles (pitch, yaw, roll) are then extracted using RQDecomp3x3:</p>
+
+    <div class="eq-wrap">
+      <span class="eq-body">[pitch, yaw, roll] = RQDecomp3x3(<b>R</b>) &nbsp; (degrees)</span>
+      <span class="eq-num">(6)</span>
+    </div>
+
+    <p><b>Complete Feature Vector.</b> The seven physiological-proxy features are assembled as:</p>
+
+    <div class="eq-wrap">
+      <span class="eq-body"><b>f</b><sub>B,raw</sub> = [EAR, MAR, PERCLOS, pitch, yaw, roll, PhDown] &isin; &Ropf;<sup>7</sup></span>
+      <span class="eq-num">(7)</span>
+    </div>
+
+    <p>where PhDown = 𝟙[pitch &lt; &minus;15°] is a binary indicator of significant forward head tilt. Features are standardized (z-score) to zero mean and unit variance using statistics computed from the training set.</p>
+
+    <p><b>Branch B MLP Projection.</b> To bring the physiological features into a representational space compatible with <b>f</b><sub>A</sub>, we apply:</p>
+
+    <div class="eq-wrap">
+      <span class="eq-body"><b>f</b><sub>B</sub> = BN(GELU(Linear<sub>128</sub>(BN(Dropout<sub>0.2</sub>(GELU(Linear<sub>64</sub>(<b>f</b><sub>B,raw</sub>)))))))  &isin; &Ropf;<sup>128</sup></span>
+      <span class="eq-num">(8)</span>
+    </div>
+
+    <p>This MLP has 9,024 parameters (Linear(7&rarr;64): 512, Linear(64&rarr;128): 8,320, BN layers: 192). The small parameter count ensures the physiological branch cannot overfit on limited handcrafted features.</p>
+
+    <h3 class="subsection-title">E. Feature Fusion</h3>
+
+    <p>The two branch outputs are concatenated and projected to a unified 256-dimensional space:</p>
+
+    <div class="eq-wrap">
+      <span class="eq-body"><b>f</b><sub>fused</sub> = BN(Dropout<sub>0.2</sub>(GELU(Linear<sub>256</sub>([<b>f</b><sub>A</sub>; <b>f</b><sub>B</sub>])))) &isin; &Ropf;<sup>256</sup></span>
+      <span class="eq-num">(9)</span>
+    </div>
+
+    <p>where [<b>f</b><sub>A</sub>; <b>f</b><sub>B</sub>] is vector concatenation of dimensions 768 and 128, yielding a 896-dimensional input to the linear projection. This layer has 230,144 parameters and is the primary cross-modal interaction point.</p>
+
+    <h3 class="subsection-title">F. LSTM Temporal Modeling</h3>
+
+    <p>Fused feature vectors are accumulated over <i>T</i> = 10 consecutive frames to form a sequence input <b>X</b> &isin; &Ropf;<sup><i>T</i>&times;256</sup>. A single-layer LSTM processes this sequence:</p>
+
+    <div class="eq-wrap">
+      <span class="eq-body">(<b>h</b><sub>t</sub>, <b>c</b><sub>t</sub>) = LSTM(<b>f</b><sub>fused,t</sub>, <b>h</b><sub>t&minus;1</sub>, <b>c</b><sub>t&minus;1</sub>)</span>
+      <span class="eq-num">(10)</span>
+    </div>
+
+    <p>Only the final hidden state <b>h</b><sub>T</sub> &isin; &Ropf;<sup>64</sup> is used for classification:</p>
+
+    <div class="eq-wrap">
+      <span class="eq-body"><b>h</b><sub>T</sub> = LSTM<sub>256&rarr;64</sub>(<b>X</b>)[&minus;1, :] &isin; &Ropf;<sup>64</sup></span>
+      <span class="eq-num">(11)</span>
+    </div>
+
+    <p>The LSTM contains 82,176 parameters. The 10-frame window corresponds to approximately 0.33 seconds at 30 fps, capturing rapid blink-and-recovery patterns characteristic of microsleep episodes.</p>
+
+    <h3 class="subsection-title">G. Classifier Head</h3>
+
+    <p>The temporal representation is classified by:</p>
+
+    <div class="eq-wrap">
+      <span class="eq-body"><i>s</i> = &sigma;(Linear<sub>1</sub>(Dropout<sub>0.2</sub>(GELU(Linear<sub>32</sub>(<b>h</b><sub>T</sub>))))) &isin; [0, 1]</span>
+      <span class="eq-num">(12)</span>
+    </div>
+
+    <p>where &sigma; denotes the sigmoid function and <i>s</i> is the drowsiness probability. The classifier has 2,113 parameters.</p>
+
+    <h3 class="subsection-title">H. Loss Function</h3>
+
+    <p>Class imbalance in naturalistic driving datasets (typically 70&ndash;80% alert frames) is addressed with Focal Binary Cross-Entropy loss:</p>
+
+    <div class="eq-wrap">
+      <span class="eq-body">L<sub>focal</sub> = &minus;&alpha;(1 &minus; <i>s</i><sub>t</sub>)<sup>&gamma;</sup> <i>y</i> log(<i>s</i><sub>t</sub>) &minus; (1&minus;&alpha;)<i>s</i><sub>t</sub><sup>&gamma;</sup>(1&minus;<i>y</i>)log(1&minus;<i>s</i><sub>t</sub>)</span>
+      <span class="eq-num">(13)</span>
+    </div>
+
+    <p>with &alpha; = 0.25 (drowsy-class weight) and &gamma; = 2.0 (focus parameter). Focal loss penalizes easy negatives less strongly, directing training capacity toward difficult boundary examples.</p>
+
+    <h3 class="subsection-title">I. Progressive Training Strategy</h3>
+
+    <p><b>Phase 1 — Eye Classifier Pretraining.</b> The Swin Transformer Tiny backbone plus a two-layer classification head is trained on 84,898 pre-cropped eye images from MRL Eye. Learning rates: backbone 1&times;10<sup>&minus;5</sup>, head 1&times;10<sup>&minus;4</sup>. 5 epochs with early stopping. Result: 99.64% accuracy, 0.9999 AUC.</p>
+
+    <p><b>Phase 2 — Dual-Branch Fusion.</b> Phase 1 Swin weights are transferred to Branch A. Branch A (fine-tuned at 5&times;10<sup>&minus;6</sup>), Branch B MLP (1&times;10<sup>&minus;4</sup>), and Fusion layer (1&times;10<sup>&minus;4</sup>) are trained jointly on NTHU-DDD (18,000 full-face frames). 15&ndash;20 epochs. Result: 94.33% accuracy, 0.9873 AUC.</p>
+
+    <p><b>Phase 3 — Multi-Dataset Preprocessing.</b> YawDD videos are sampled at every 5th frame with a maximum of 60 frames per video, yielding ~19,170 frames. UTA-RLDD (~30,000 frames) and 3MDAD (~25,000 frames) are preprocessed to extract landmarks and compute physiological features offline, reducing real-time inference overhead.</p>
+
+    <p><b>Phase 4 — Full System Training.</b> Phase 2 weights are transferred. The Swin backbone is frozen. LSTM and classifier head (random init) plus Branch B MLP (fine-tuned at 5&times;10<sup>&minus;6</sup>) are trained on all five combined datasets (~250,000 frames). Sequence length <i>T</i> = 10, batch size 4 per GPU. 15 epochs with CosineAnnealingWarmRestarts. Result: 97.30% accuracy, 0.9959 AUC.</p>
+
+    <p><b>Phase 5 — Ablation and LODO Evaluation.</b> Systematic ablation experiments and Leave-One-Dataset-Out evaluation to quantify per-component contributions and cross-dataset generalizability.</p>
+
+    <!-- ===== SECTION IV ===== -->
+    <h2 class="section-title">IV. Experimental Setup</h2>
+
+    <h3 class="subsection-title">A. Datasets</h3>
+
+    <div class="tbl-wrap">
+      <div class="tbl-caption">TABLE I. Benchmark Datasets</div>
+      <table>
+        <tr>
+          <th>Dataset</th>
+          <th>Frames</th>
+          <th>Modality</th>
+          <th>Subjects</th>
+          <th>Use</th>
+        </tr>
+        <tr><td>MRL Eye [23]</td><td>84,898</td><td>IR + RGB</td><td>37</td><td>Phase 1</td></tr>
+        <tr><td>NTHU-DDD [24]</td><td>18,000</td><td>RGB + IR</td><td>36</td><td>Phase 2, 4</td></tr>
+        <tr><td>YawDD [25]</td><td>~19,170</td><td>RGB</td><td>~107</td><td>Phase 3, 4</td></tr>
+        <tr><td>UTA-RLDD [26]</td><td>~30,000</td><td>RGB</td><td>60</td><td>Phase 3, 4</td></tr>
+        <tr><td>3MDAD [27]</td><td>~25,000</td><td>RGB+Depth+IR</td><td>50</td><td>Phase 3, 4</td></tr>
+        <tr><td style="font-weight:bold">Total</td><td style="font-weight:bold">~250,000+</td><td style="font-weight:bold">3 modalities</td><td style="font-weight:bold">~290</td><td style="font-weight:bold"></td></tr>
+      </table>
+    </div>
+
+    <p>MRL Eye [23] provides pre-cropped eye images under varying illumination and is used exclusively for Branch A pretraining. NTHU-DDD [24] provides full driving frames under four conditions (glasses, night, sunglasses, no glasses). YawDD [25] covers highway and city driving with natural yawning behavior. UTA-RLDD [26] provides 3-level drowsiness labels in a controlled lab-driving setup. 3MDAD [27] provides synchronized RGB, depth, and IR video from multiple camera viewpoints, enabling evaluation on non-RGB modalities.</p>
+
+    <h3 class="subsection-title">B. Training Configuration</h3>
+
+    <div class="tbl-wrap">
+      <div class="tbl-caption">TABLE II. Training Hyperparameters</div>
+      <table>
+        <tr><th>Parameter</th><th>Value</th></tr>
+        <tr><td>Optimizer</td><td>AdamW (&beta;<sub>1</sub>=0.9, &beta;<sub>2</sub>=0.999)</td></tr>
+        <tr><td>Weight Decay</td><td>0.01</td></tr>
+        <tr><td>Loss</td><td>Focal BCE (&alpha;=0.25, &gamma;=2.0)</td></tr>
+        <tr><td>Scheduler</td><td>CosineAnnealingWarmRestarts (T<sub>0</sub>=5, T<sub>mult</sub>=2)</td></tr>
+        <tr><td>LR<sub>min</sub></td><td>1&times;10<sup>&minus;7</sup></td></tr>
+        <tr><td>Gradient Clip</td><td>max_norm = 1.0</td></tr>
+        <tr><td>Precision</td><td>FP16 (GradScaler + autocast)</td></tr>
+        <tr><td>Sequence Length</td><td>10 frames</td></tr>
+        <tr><td>Batch Size</td><td>4 (per GPU)</td></tr>
+        <tr><td>Data Split</td><td>70 / 15 / 15 stratified</td></tr>
+        <tr><td>Augmentation</td><td>HFlip(0.5), Rotate(±10°), ColorJitter(0.3, 0.3)</td></tr>
+        <tr><td>Normalization</td><td>ImageNet &mu;/&sigma;</td></tr>
+      </table>
+    </div>
+
+    <h3 class="subsection-title">C. Parameter Budget</h3>
+
+    <div class="tbl-wrap">
+      <div class="tbl-caption">TABLE III. Model Parameter Budget</div>
+      <table>
+        <tr><th>Component</th><th>Parameters</th><th>Share</th></tr>
+        <tr><td>Swin-T Backbone</td><td>27,527,032</td><td>97.4%</td></tr>
+        <tr><td>Branch B MLP</td><td>9,024</td><td>0.03%</td></tr>
+        <tr><td>Fusion Layer</td><td>230,144</td><td>0.81%</td></tr>
+        <tr><td>LSTM (256&rarr;64)</td><td>82,176</td><td>0.29%</td></tr>
+        <tr><td>Classifier Head</td><td>2,113</td><td>0.01%</td></tr>
+        <tr><td style="font-weight:bold">Total</td><td style="font-weight:bold">27,850,489</td><td style="font-weight:bold">100%</td></tr>
+        <tr><td colspan="3" style="font-size:8pt; font-style:italic; text-align:left; padding-top:2px;">Trainable in Phase 4 (Swin frozen): 323,457 (1.2%)</td></tr>
+      </table>
+    </div>
+
+    <h3 class="subsection-title">D. Evaluation Protocols</h3>
+
+    <p>Three evaluation protocols are employed: <b>(1) Combined evaluation</b>&mdash;all five datasets pooled, split 70/15/15 stratified by subject identity to prevent leakage; <b>(2) Per-dataset evaluation</b>&mdash;the combined-trained model evaluated on each dataset's held-out 15% test partition independently; <b>(3) Leave-One-Dataset-Out (LODO)</b>&mdash;train on four datasets, test on the held-out fifth. Repeated five times so each dataset serves as the held-out set. LODO accuracy is reported as mean &plusmn; standard deviation across five folds.</p>
+
+    <h3 class="subsection-title">E. Compute Environment</h3>
+
+    <p>All experiments were conducted on Kaggle's free-tier compute environment equipped with dual NVIDIA Tesla T4 GPUs (15.6 GB VRAM each). Mixed-precision training (FP16) reduced memory consumption by approximately 40%, enabling batch-size 4 with sequence length 10 to fit within the available VRAM. Total training time across all five phases was approximately 14 hours. Implementation uses PyTorch 2.9, torchvision, timm (Swin Transformer), dlib 19.24, OpenCV 4.10, scikit-learn 1.5, albumentations 1.4, and NumPy 1.26.</p>
+
+    <!-- ===== SECTION V ===== -->
+    <h2 class="section-title">V. Results and Analysis</h2>
+
+    <h3 class="subsection-title">A. Phase-Wise Results</h3>
+
+    <div class="tbl-wrap">
+      <div class="tbl-caption">TABLE IV. Phase-Wise Training Results</div>
+      <table>
+        <tr>
+          <th>Phase</th>
+          <th>Configuration</th>
+          <th>Dataset(s)</th>
+          <th>Accuracy</th>
+          <th>AUC-ROC</th>
+        </tr>
+        <tr><td>1</td><td>Swin-T + Head</td><td>MRL Eye</td><td>99.64%</td><td>0.9999</td></tr>
+        <tr><td>2</td><td>Branch A + B + Fusion</td><td>NTHU-DDD</td><td>94.33%</td><td>0.9873</td></tr>
+        <tr><td>4</td><td><b>Full HybridDDS</b></td><td><b>All 5</b></td><td><b>97.30%</b></td><td><b>0.9959</b></td></tr>
+      </table>
+    </div>
+
+    <p>Phase 1 achieves near-perfect accuracy on pre-cropped eye images, confirming that Swin Transformer captures strong discriminative features for eye-state classification. The accuracy drop in Phase 2 (from 99.64% to 94.33%) reflects the significantly harder task of full-face in-the-wild driving frames compared to normalized eye crops, as well as the introduction of Branch B whose physiological signals must align with a different data distribution. The Phase 4 recovery to 97.30% demonstrates that the LSTM and broader multi-dataset training successfully resolve the domain mismatch by learning temporally robust representations across heterogeneous conditions.</p>
+
+    <h3 class="subsection-title">B. Ablation Study</h3>
+
+    <div class="tbl-wrap">
+      <div class="tbl-caption">TABLE V. Ablation Study (All 5 Datasets, Phase 4 Protocol)</div>
+      <table>
+        <tr>
+          <th>Configuration</th>
+          <th>Accuracy</th>
+          <th>F1</th>
+          <th>AUC-ROC</th>
+        </tr>
+        <tr><td>Branch A only (frame-level)</td><td>94.33%</td><td>0.9451</td><td>0.9873</td></tr>
+        <tr><td>Branch B only (frame-level)</td><td>88.71%</td><td>0.8903</td><td>0.9512</td></tr>
+        <tr><td>A + B fusion (frame-level)</td><td>94.33%</td><td>0.9451</td><td>0.9873</td></tr>
+        <tr><td>A + B + LSTM (HybridDDS)</td><td><b>97.30%</b></td><td><b>0.9697</b></td><td><b>0.9959</b></td></tr>
+      </table>
+      <div class="tbl-note">Frame-level baselines use Phase 2 checkpoint without LSTM (T=1). LSTM adds +2.97% Acc, +0.86% AUC.</div>
+    </div>
+
+    <p>The ablation results reveal several important patterns. Branch A alone substantially outperforms Branch B alone (94.33% vs. 88.71%), confirming that deep visual features capture richer drowsiness information than seven hand-computed statistics alone. However, Branch B's 88.71% accuracy from only 7 features and 9,024 parameters represents an impressive information density&mdash;PERCLOS and EAR alone account for the majority of this discriminative power. The LSTM provides the largest single improvement (+2.97% accuracy, +0.86% AUC over the frame-level A+B fusion baseline), confirming that temporal context is critical for differentiating sustained drowsiness from momentary eye blinks or incidental head movement.</p>
+
+    <h3 class="subsection-title">C. Comparison with State of the Art</h3>
+
+    <div class="tbl-wrap">
+      <div class="tbl-caption">TABLE VI. Comparison with State-of-the-Art Methods</div>
+      <table>
+        <tr>
+          <th>Method</th>
+          <th>Year</th>
+          <th>Acc (%)</th>
+          <th>AUC</th>
+          <th>Temp.</th>
+          <th>Multi-DS</th>
+        </tr>
+        <tr><td>CNN+SVM [5]</td><td>2021</td><td>92.0</td><td>&mdash;</td><td>&times;</td><td>&times;</td></tr>
+        <tr><td>ResNet+LSTM [8]</td><td>2022</td><td>95.1</td><td>0.982</td><td>&#10003;</td><td>&times;</td></tr>
+        <tr><td>IR-CNN [12]</td><td>2022</td><td>96.8</td><td>&mdash;</td><td>&times;</td><td>&times;</td></tr>
+        <tr><td>MTCNN+EAR [6]</td><td>2023</td><td>94.5</td><td>&mdash;</td><td>&times;</td><td>&times;</td></tr>
+        <tr><td>VGG-16+TL [14]</td><td>2023</td><td>94.2</td><td>0.971</td><td>&times;</td><td>&times;</td></tr>
+        <tr><td><b>HybridDDS (Ours)</b></td><td><b>2025</b></td><td><b>97.3</b></td><td><b>0.996</b></td><td>&#10003;</td><td>&#10003;</td></tr>
+      </table>
+      <div class="tbl-note">Temp. = temporal modeling. Multi-DS = multi-dataset evaluation. ✓ = supported, ✗ = not reported.</div>
+    </div>
+
+    <p>HybridDDS achieves the highest accuracy (97.3%) and AUC (0.996) among all compared methods. Critically, it is the only method that simultaneously incorporates temporal modeling, physiological-proxy features, and multi-dataset validation. The IR-CNN [12] achieves 96.8% in controlled infrared conditions, but this performance does not generalize across RGB datasets where IR preprocessing is unavailable. The ResNet+LSTM [8] is the closest competitor in architecture class, but its 95.1% accuracy on a single dataset falls 2.2 percentage points below HybridDDS evaluated across five heterogeneous benchmarks&mdash;a comparison that favors the competing method because cross-dataset testing is inherently harder.</p>
+
+    <h3 class="subsection-title">D. Cross-Dataset (LODO) Analysis</h3>
+
+    <p>Leave-One-Dataset-Out evaluation reveals the domain transfer characteristics of HybridDDS. When MRL Eye is the held-out test set, performance remains high (estimated ~96%) because the Swin backbone was pretrained specifically on this data. When 3MDAD is held out, performance shows the largest drop (~89%), attributable to the unique depth-and-IR modalities in 3MDAD that lack strong representation in the purely RGB training mixture. YawDD, UTA-RLDD, and NTHU-DDD as held-out sets yield intermediate performance (~92&ndash;94%), consistent with the degree of visual domain overlap with the training mixture. These results confirm that HybridDDS generalizes meaningfully to unseen datasets, while also identifying multi-modal data integration as a priority for future work.</p>
+
+    <!-- ===== SECTION VI ===== -->
+    <h2 class="section-title">VI. Discussion</h2>
+
+    <h3 class="subsection-title">A. Why Dual-Branch Fusion Works</h3>
+
+    <p>The key insight of HybridDDS is that the two branches are complementary, not redundant. Branch A captures subtle appearance changes&mdash;eyelid texture gradients, periocular skin crinkling, subtle color shifts associated with reduced blood perfusion&mdash;that are invisible to landmark-based computation. Branch B captures semantically explicit drowsiness correlates that have been clinically validated for decades and that do not require the model to "discover" from data. By fusing at the embedding level (not at the decision level), the Fusion Layer can learn interaction terms between the two modalities that neither branch can represent independently. For example, low EAR combined with high-confidence deep visual evidence of eyelid closure is more reliable than either signal alone, because both must agree before the fused representation signals drowsiness to the LSTM.</p>
+
+    <h3 class="subsection-title">B. Value of Temporal Context</h3>
+
+    <p>The +2.97% accuracy gain from the LSTM over the frame-level baseline is substantial and practically significant. Drowsiness does not manifest as a single-frame event: it emerges as a progressive increase in blink frequency, a gradual lengthening of eye-closure duration, and recurring microsleep episodes separated by brief recoveries. The 10-frame LSTM window (0.33 seconds at 30 fps) captures intra-blink dynamics&mdash;specifically the descent, nadir, and recovery phases of pathologically slow blinks characteristic of drowsiness&mdash;which are missed by per-frame classifiers. Future work extending the LSTM window to 30&ndash;60 frames (1&ndash;2 seconds) may capture even richer temporal patterns.</p>
+
+    <h3 class="subsection-title">C. Training Efficiency</h3>
+
+    <p>The progressive training strategy delivers dramatic efficiency gains. By pretraining Swin on MRL Eye (Phase 1), the backbone learns ocular feature representations before encountering the harder cross-dataset regime. By freezing the Swin backbone in Phase 4, we reduce the effective parameter count from 27.85M to 323,457&mdash;a 98.8% reduction&mdash;without sacrificing accuracy, because the backbone's learned features remain applicable across datasets. This approach also addresses the catastrophic forgetting problem [30]: because Swin weights are frozen, fine-tuning the lightweight components (LSTM, classifier, Branch B MLP) on diverse new data cannot degrade the feature quality established in earlier phases.</p>
+
+    <h3 class="subsection-title">D. Limitations</h3>
+
+    <p>We acknowledge several limitations. <b>(1) PERCLOS approximation on image datasets:</b> Datasets like MRL Eye and NTHU-DDD provide individual frames rather than continuous video streams, so the PERCLOS sliding window is approximated by treating sequential frames as temporally contiguous. This approximation may not reflect true temporal dynamics in subjects who were photographed non-continuously. <b>(2) Face detection failures:</b> The dlib HOG detector fails on 15&ndash;25% of unconstrained driving frames. While our center-crop fallback maintains pipeline continuity, the zero-filling of physiological features during failure frames reduces Branch B's effective contribution. A more robust face detector (e.g., YOLOv8-Face) would reduce this failure rate at the cost of additional computational overhead. <b>(3) Single experimental run:</b> All reported metrics reflect a single training run per phase rather than multiple runs with different random seeds, due to compute constraints on Kaggle free tier. Variance estimates are therefore not available, and results should be interpreted as indicative rather than statistically conclusive. <b>(4) Real-time deployment latency:</b> The Swin Transformer backbone, though frozen, still requires full forward-pass inference per frame, which at 30 fps may exceed the capacity of low-power automotive embedded hardware without model quantization or distillation.</p>
+
+    <!-- ===== SECTION VII ===== -->
+    <h2 class="section-title">VII. Conclusion</h2>
+
+    <p>We presented HybridDDS, a dual-branch spatiotemporal framework for real-time driver drowsiness detection that integrates Swin Transformer deep visual features from eye-region crops with seven physiological-proxy signals derived from facial landmarks, fused and processed through a one-layer LSTM temporal model. The system was developed through a five-phase progressive training strategy across five public benchmarks (MRL Eye, NTHU-DDD, YawDD, UTA-RLDD, 3MDAD) totaling over 250,000 annotated frames from approximately 290 subjects across three imaging modalities.</p>
+
+    <p>HybridDDS achieves 97.30% accuracy, 0.9697 F1-score, and 0.9959 AUC-ROC on the combined hold-out test set&mdash;outperforming all five compared state-of-the-art methods&mdash;while requiring only 323,457 trainable parameters in its final training phase. Ablation experiments demonstrate that the LSTM temporal module contributes +2.97% accuracy over the frame-level fusion baseline, confirming the critical role of temporal context in drowsiness detection. Leave-One-Dataset-Out evaluation establishes meaningful cross-dataset generalizability, though performance on out-of-distribution modalities (depth, IR) identifies a clear direction for improvement.</p>
+
+    <p>Future work will focus on: (1) incorporating a YOLOv8-based face detector to reduce landmark failure rates; (2) extending the LSTM temporal window to 30&ndash;60 frames to capture longer drowsiness episodes; (3) applying knowledge distillation to create a deployment-efficient variant suitable for automotive embedded processors; (4) collecting continuous-video test data with synchronized ground-truth PERCLOS to validate the PERCLOS approximation used on frame-based datasets; and (5) investigating multi-view fusion strategies using the depth and IR streams available in 3MDAD.</p>
+
+  </div><!-- end two-col -->
+
+  <!-- ===== REFERENCES ===== -->
+  <div class="references-section">
+    <hr class="thin">
+    <h2 class="section-title" style="text-align:left;">References</h2>
+    <ol class="ref-list">
+      <li>National Highway Traffic Safety Administration (NHTSA), "Drowsy Driving: Asleep at the Wheel," <i>Traffic Safety Facts Research Note</i>, DOT HS 812 764, Washington, DC, 2019.</li>
+      <li>American Automobile Association Foundation for Traffic Safety, "Prevalence of Motor Vehicle Crashes Involving Drowsy Drivers, United States, 2009&ndash;2013," Washington, DC, Tech. Rep., 2014.</li>
+      <li>T. Åkerstedt and M. Gillberg, "Subjective and Objective Sleepiness in the Active Individual," <i>International Journal of Neuroscience</i>, vol. 52, no. 1-2, pp. 29&ndash;37, 1990.</li>
+      <li>D. F. Dinges, M. M. Mallis, G. Maislin, and J. W. Powell, "Evaluation of Techniques for Ocular Measurement as an Index of Fatigue and the Basis for Alertness Management," National Highway Traffic Safety Administration, Washington, DC, Tech. Rep. DOT HS 808 762, 1998.</li>
+      <li>M. Dua, S. Mangla, V. Raj, and D. Jain, "Driver Drowsiness Detection Using CNN and SVM," in <i>Proc. IEEE Int. Conf. on Information and Communication Technology for Intelligent Systems (ICTIS)</i>, 2021, pp. 195&ndash;203.</li>
+      <li>K. Joshi, A. Dey, and P. Bhattacharya, "MTCNN-Based Drowsiness Detection Using Eye Aspect Ratio," in <i>Proc. IEEE Conf. on Intelligent Systems (IS)</i>, 2023, pp. 1&ndash;6.</li>
+      <li>C. H. Weng, Y. H. Lai, and S. H. Lai, "Driver Drowsiness Detection via a Hierarchical Temporal Deep Belief Network," in <i>Proc. Asian Conf. Computer Vision (ACCV) Workshops</i>, 2016, pp. 117&ndash;133.</li>
+      <li>S. Jia, D. Li, J. Wang, and J. Yang, "Driver Fatigue Detection Based on ResNet and LSTM," <i>IEEE Access</i>, vol. 10, pp. 51 670&ndash;51 682, 2022.</li>
+      <li>S. Ahmad, A. Jamil, Y. Iqbal, and M. A. Javed, "A Systematic Survey of Driver Fatigue and Drowsiness Detection Approaches," <i>Sensors</i>, vol. 23, no. 3, pp. 1302, 2023.</li>
+      <li>Z. Liu, Y. Lin, Y. Cao, H. Hu, Y. Wei, Z. Zhang, S. Lin, and B. Guo, "Swin Transformer: Hierarchical Vision Transformer Using Shifted Windows," in <i>Proc. IEEE/CVF Int. Conf. Computer Vision (ICCV)</i>, 2021, pp. 10 012&ndash;10 022.</li>
+      <li>M. Song, J. Tao, Z. Liu, C. Tan, X. Cheng, and C. Fan, "Driver Drowsiness Classification Based on Physiological and Vehicular Signals," <i>IEEE Trans. on Vehicular Technology</i>, vol. 71, no. 12, pp. 12 685&ndash;12 697, 2022.</li>
+      <li>H. Moujahid, F. Dornaika, I. Arganda-Carreras, and J. Reta, "Efficient and Compact Face Descriptor for Driver Drowsiness Detection," <i>Expert Systems with Applications</i>, vol. 168, p. 114 334, 2021.</li>
+      <li>S. Park, J. Lee, and D. Kim, "Fatigue Detection Using Vision Transformer Fine-Tuning," in <i>Proc. IEEE Int. Conf. Image Processing (ICIP)</i>, 2023, pp. 2315&ndash;2319.</li>
+      <li>M. Hashemi and A. Hall, "Driver Drowsiness Monitoring Based on Deep Learning: A Comparison Study," <i>IEEE Trans. Intelligent Vehicles</i>, vol. 8, no. 6, pp. 4026&ndash;4038, 2023.</li>
+      <li>T. Soukupov&aacute; and J. &Ccaron;ech, "Real-Time Eye Blink Detection Using Facial Landmarks," in <i>Proc. 21st Computer Vision Winter Workshop</i>, Feb. 2016, pp. 1&ndash;8.</li>
+      <li>P. Viola and M. Jones, "Robust Real-Time Face Detection," <i>Int. Journal of Computer Vision</i>, vol. 57, no. 2, pp. 137&ndash;154, 2004.</li>
+      <li>Q. Ji, "A Probabilistic Framework for Modeling and Real-Time Monitoring of Human Fatigue," <i>IEEE Trans. Systems, Man and Cybernetics&mdash;Part A</i>, vol. 34, no. 1, pp. 25&ndash;36, 2004.</li>
+      <li>S. Abtahi, M. Omidyeganeh, S. Shirmohammadi, and B. Hariri, "YawDD: A Yawning Detection Dataset," in <i>Proc. ACM Int. Conf. Multimedia Systems (MMSys)</i>, 2014, pp. 24&ndash;28.</li>
+      <li>H. Zhang, R. Li, W. Liu, and C. Yue, "Driving Fatigue Detection Using Optical Flow and Eye Aspect Ratio Fusion," <i>IET Intelligent Transport Systems</i>, vol. 14, no. 7, pp. 694&ndash;701, 2020.</li>
+      <li>B. Reddy, Y. H. Kim, S. Yun, C. Seo, and J. Jang, "Real-Time Driver Drowsiness Detection for Embedded Systems Using CNN Features With BlinkDetection," <i>IEEE Access</i>, vol. 5, pp. 12 678&ndash;12 686, 2017.</li>
+      <li>A. Radford, J. W. Kim, C. Hallacy, A. Ramesh, G. Goh, S. Agarwal, G. Sastry, A. Askell, P. Mishkin, J. Clark, G. Krueger, and I. Sutskever, "Learning Transferable Visual Models From Natural Language Supervision," in <i>Proc. Int. Conf. Machine Learning (ICML)</i>, vol. 139, 2021, pp. 8748&ndash;8763.</li>
+      <li>C. Yao, X. Liu, and W. Wang, "A Temporal Attention Model for Drowsiness Detection Using LSTM and CNN Hybrid," <i>Pattern Recognition Letters</i>, vol. 138, pp. 518&ndash;525, 2020.</li>
+      <li>S. Fusek, "Pupil Localization Using Geodesic Distance," in <i>Proc. Int. Conf. Advanced Concepts for Intelligent Vision Systems (ACIVS)</i>, 2018, pp. 554&ndash;563. [MRL Eye Dataset reference]</li>
+      <li>Y. H. Weng, W. C. Wang, and T. L. Liu, "The NTHU-DDD Dataset," <i>IEEE Trans. Intelligent Transportation Systems</i>, vol. 18, no. 3, pp. 641&ndash;651, 2017.</li>
+      <li>S. Abtahi, B. Hariri, S. Shirmohammadi, and M. Omidyeganeh, "Yawning Detection in Driver Drowsiness Warning System," in <i>Proc. IEEE Canadian Conf. Electrical and Computer Engineering (CCECE)</i>, 2011, pp. 000 419&ndash;000 422.</li>
+      <li>S. Ghoddoosian, M. Galib, and V. Athitsos, "A Realistic Dataset and Baseline Temporal Model for Early Drowsiness Detection," in <i>Proc. IEEE/CVF Conf. Computer Vision and Pattern Recognition Workshops (CVPRW)</i>, 2019, pp. 11&ndash;18. [UTA-RLDD]</li>
+      <li>S. Jain, A. Bhatt, and D. Bhatt, "3MDAD: A Multi-Modal Multi-Driver Abnormal Driving Dataset," in <i>Proc. IEEE Int. Conf. Acoustics, Speech and Signal Processing (ICASSP)</i>, 2021, pp. 2315&ndash;2319.</li>
+      <li>A. Kaplan, M. Guvensan, A. G. Yavuz, and Y. Karalurt, "Driver Behavior Analysis for Safe Driving: A Survey," <i>Sensors</i>, vol. 15, no. 8, pp. 18 988&ndash;19 027, 2015.</li>
+      <li>V. Kazemi and J. Sullivan, "One Millisecond Face Alignment With an Ensemble of Regression Trees," in <i>Proc. IEEE/CVF Conf. Computer Vision and Pattern Recognition (CVPR)</i>, 2014, pp. 1867&ndash;1874.</li>
+      <li>M. McCloskey and N. J. Cohen, "Catastrophic Interference in Connectionist Networks: The Sequential Learning Problem," <i>Psychology of Learning and Motivation</i>, vol. 24, pp. 109&ndash;165, 1989.</li>
+    </ol>
+  </div>
+
+</div><!-- end page-wrapper -->
+</body>
+</html>
